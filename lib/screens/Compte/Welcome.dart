@@ -1,11 +1,9 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:premiere/screens/Compte/Contrat&Condition.dart';
 import 'package:premiere/screens/Compte/Sign_in.dart';
 
 class Welcome extends StatefulWidget {
-  Welcome({Key? key, this.accept = false}) : super(key: key);
+  Welcome({Key key, this.accept = false}) : super(key: key);
   final bool accept;
 
   @override
@@ -32,10 +30,15 @@ class _WelcomeState extends State<Welcome> {
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Column(
                         children: [
+                          CircleAvatar(
+                            radius: 30.0,
+                            backgroundImage:
+                                AssetImage('assets/img/splash.png'),
+                          ),
                           Text(
                             'MesProff-Première',
                             style: TextStyle(

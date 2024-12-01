@@ -15,7 +15,7 @@ class CardHorizontal extends StatelessWidget {
   final String cta;
   final String chemin;
   final String img;
-  final Function()? tap;
+  final Function tap;
   final String title;
   final String evaluation;
   final String anAcad;

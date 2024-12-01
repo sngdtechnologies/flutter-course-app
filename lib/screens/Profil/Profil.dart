@@ -1,14 +1,9 @@
-// ignore_for_file: unnecessary_question_mark, deprecated_member_use, unnecessary_null_comparison, unused_field
-
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:premiere/widgets/drawer.dart';
 import 'package:premiere/widgets/navbar.dart';
@@ -16,7 +11,7 @@ import 'package:premiere/widgets/navbar.dart';
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class Profil extends StatefulWidget {
-  Profil({Key? key}) : super(key: key);
+  Profil({Key key}) : super(key: key);
 
   @override
   _ProfilState createState() => _ProfilState();
@@ -30,17 +25,17 @@ class _ProfilState extends State<Profil> {
   //picture: https://lh3.googleusercontent.com/a/AATXAJyyQijYVdHXSeHK_ufRXE2_xxSuNGUiJZ7zoSJs=s96-c,
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
-  PickedFile? _imageFile;
-  dynamic? _pickImageError;
-  String? _retrieveDataError;
+  PickedFile _imageFile;
+  dynamic _pickImageError;
+  String _retrieveDataError;
 
   final ImagePicker _picker = ImagePicker();
   final TextEditingController maxWidthController = TextEditingController();
   final TextEditingController maxHeightController = TextEditingController();
   final TextEditingController qualityController = TextEditingController();
-  TextEditingController? nameController;
-  TextEditingController? urlController;
-  TextEditingController? telControlleur;
+  TextEditingController nameController;
+  TextEditingController urlController;
+  TextEditingController telControlleur;
 
   Color theme = Colors.deepPurple;
   String uid = '';
@@ -51,7 +46,7 @@ class _ProfilState extends State<Profil> {
   bool modifier = false;
   String modif = '';
 
-  User? user;
+  User user;
 
   @override
   void initState() {
@@ -59,7 +54,7 @@ class _ProfilState extends State<Profil> {
     super.initState();
   }
 
-  void _onImageButtonPressed(ImageSource source, {BuildContext? context}) async {
+  void _onImageButtonPressed(ImageSource source, {BuildContext context}) async {
     affiche('Veuillez patienter . . .', Icons.refresh);
     try {
       final result = await InternetAddress.lookup('google.com');
@@ -68,7 +63,7 @@ class _ProfilState extends State<Profil> {
           final pickedFile = await _picker.getImage(
             source: source,
           );
-          print(pickedFile!.path);
+          print(pickedFile.path);
           setState(() {
             _imageFile = pickedFile;
           });
@@ -85,49 +80,44 @@ class _ProfilState extends State<Profil> {
     }
   }
 
-  Widget? _previewImage() {
+  Widget _previewImage() {
     try {
-      final Text? retrieveError = _getRetrieveErrorWidget();
+      final Text retrieveError = _getRetrieveErrorWidget();
       if (retrieveError != null) {
         return retrieveError;
       }
       if (_imageFile != null) {
-        print('non');
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(80.0),
-          child: Image.file(File(_imageFile!.path),
-              height: 170.0,
-              width: 160.0,
-              scale: 3.0,),
+        print(_imageFile.path);
+        if (kIsWeb) {
+          // Why network?
+          // See https://pub.dev/packages/image_picker#getting-ready-for-the-web-platform
+          print('oui');
+          return Image.network(_imageFile.path);
+        } else {
+          print('non');
+          return Semantics(
+              child: Image.file(
+                File(user.photoURL),
+                height: 170.0,
+                width: 160.0,
+                scale: 3.0,
+              ),
+              label: 'Selection d\'une image dans la gallery');
+        }
+      } else if (_pickImageError != null) {
+        return Text(
+          'Erreur de selection de l\'image: $_pickImageError',
+          textAlign: TextAlign.center,
         );
       } else {
-        print(user!.photoURL);
-        return Container(
-          child: ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(55)),
-            child: CachedNetworkImage(
-              width: MediaQuery.of(context).size.width * 0.35,
-              height: MediaQuery.of(context).size.height * 0.25,
-              fit: BoxFit.cover,
-              imageUrl: user!.photoURL!,
-              progressIndicatorBuilder: (context, url, downloadProgress) => 
-                SpinKitWave(
-                  color: Colors.white,
-                  size: 15,
-                ),
-              errorWidget: (context, url, error) => Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: AssetImage('assets/img/img_not_available.jpeg'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                clipBehavior: Clip.hardEdge,
-              ),
+        return Semantics(
+            child: Image.file(
+              File(user.photoURL),
+              height: 170.0,
+              width: 160.0,
+              scale: 3.0,
             ),
-          ),
-        );
+            label: 'Selection d\'une image dans la gallery');
       }
     } catch (e) {
       affiche('Une erreur c\'est produite veuillez réesseller ultérieurement ',
@@ -145,14 +135,14 @@ class _ProfilState extends State<Profil> {
         _imageFile = response.file;
       });
     } else {
-      _retrieveDataError = response.exception!.code;
+      _retrieveDataError = response.exception.code;
     }
   }
 
-  Text? _getRetrieveErrorWidget() {
+  Text _getRetrieveErrorWidget() {
     try {
       if (_retrieveDataError != null) {
-        final Text result = Text(_retrieveDataError!);
+        final Text result = Text(_retrieveDataError);
         _retrieveDataError = null;
         return result;
       }
@@ -169,13 +159,13 @@ class _ProfilState extends State<Profil> {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         if (modif == 'nom') {
-          user!.updateProfile(displayName: nomPrenom);
+          user.updateProfile(displayName: nomPrenom);
           var doc;
           // var result = await _firebaseFirestore
           //     .collection("utilisateurs")
           //     .where("nom", isEqualTo: user.displayName)
           //     .get();
-          doc = user!.uid;
+          doc = user.uid;
 
           //Modification du document
           _firebaseFirestore
@@ -185,7 +175,7 @@ class _ProfilState extends State<Profil> {
             setState(() {
               modifier = false;
             });
-            user!.reload();
+            user.reload();
           });
 
           // print(nomPrenom)
@@ -203,32 +193,7 @@ class _ProfilState extends State<Profil> {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        String fileName = DateTime.now().millisecondsSinceEpoch.toString() + ".jpeg";
-        Reference reference = FirebaseStorage.instance.ref('users').child(user!.uid).child('profil').child(fileName);
-        final metadata = SettableMetadata(
-            contentType: 'image/jpeg', customMetadata: {'picked-file-path': _imageFile!.path});
-        TaskSnapshot snapshot;
-        if (kIsWeb) {
-          snapshot = await reference.putData(await _imageFile!.readAsBytes(), metadata);
-        } else {
-          snapshot = await reference.putFile(File(_imageFile!.path), metadata);
-        }
-        
-        String imageUrl = await snapshot.ref.getDownloadURL();
-        user!.updateProfile(photoURL: imageUrl);
-        var doc;
-        doc = user!.uid;
-
-        //Modification du document
-        _firebaseFirestore
-            .collection("utilisateurs")
-            .doc(doc)
-            .update({
-          "profil": imageUrl,
-          "dateUpdate": DateTime.now(),
-        }).then((value) {
-          user!.reload();
-        });
+        user.updateProfile(photoURL: _imageFile.path);
       }
     } on SocketException catch (_) {
       affiche('Veuillez-vous connecter . . .', Icons.signal_wifi_off_rounded);
@@ -255,40 +220,21 @@ class _ProfilState extends State<Profil> {
               children: [
                 Stack(
                   children: [
-                    if (user!.photoURL != ' ' && user!.photoURL != null)
+                    if (user.photoURL != ' ' && user.photoURL != null)
                       Positioned(
                           child: GestureDetector(
                         onTap: () => showDialog(
                           context: context,
-                          builder: (context) => Container(
-                            alignment: Alignment.center,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: CachedNetworkImage(
-                                width: MediaQuery.of(context).size.width * 0.8,
-                                height: MediaQuery.of(context).size.height * 0.75,
-                                fit: BoxFit.cover,
-                                imageUrl: user!.photoURL!,
-                                progressIndicatorBuilder: (context, url, downloadProgress) => 
-                                        SpinKitWave(
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                errorWidget: (context, url, error) => Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                      image: AssetImage('assets/img/img_not_available.jpeg'),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  clipBehavior: Clip.hardEdge,
-                                ),
+                          builder: (context) => Semantics(
+                              child: Image.file(
+                                File(user.photoURL),
                               ),
-                            ),
-                          ),
+                              label: 'Selection d\'une image dans la gallery'),
                         ),
-                        child: _previewImage(),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(80.0),
+                          child: _previewImage(),
+                        ),
                       ))
                     else
                       Positioned(
@@ -384,9 +330,9 @@ class _ProfilState extends State<Profil> {
                                 ),
                                 Container(
                                   child: Text(
-                                    user!.displayName! == null
+                                    user.displayName == null
                                         ? 'Pas de Nom'
-                                        : user!.displayName!,
+                                        : user.displayName,
                                     style: TextStyle(
                                         letterSpacing: 1,
                                         fontSize: 15,
@@ -436,10 +382,10 @@ class _ProfilState extends State<Profil> {
                                 ),
                                 Container(
                                   child: Text(
-                                    user!.phoneNumber! == null ||
-                                            user!.phoneNumber! == ''
+                                    user.phoneNumber == null ||
+                                            user.phoneNumber == ''
                                         ? 'Pas de Numero'
-                                        : user!.phoneNumber!,
+                                        : user.phoneNumber,
                                     style: TextStyle(
                                         letterSpacing: 1,
                                         fontSize: 15,
@@ -505,8 +451,8 @@ class _ProfilState extends State<Profil> {
                                               : telControlleur,
                                           autocorrect: false,
                                           initialValue: modif == 'nom'
-                                              ? user!.displayName
-                                              : user!.phoneNumber,
+                                              ? user.displayName
+                                              : user.phoneNumber,
                                           autofocus: modifier,
                                           style: TextStyle(
                                               // fontSize: 20.0,
@@ -609,9 +555,9 @@ class _ProfilState extends State<Profil> {
 
   @override
   void dispose() {
-    nameController!.dispose();
-    urlController!.dispose();
-    telControlleur!.dispose();
+    nameController.dispose();
+    urlController.dispose();
+    telControlleur.dispose();
     super.dispose();
   }
 
@@ -626,6 +572,6 @@ class _ProfilState extends State<Profil> {
       ),
       backgroundColor: theme,
     );
-    scaffoldKey.currentState!.showSnackBar(snackBar);
+    scaffoldKey.currentState.showSnackBar(snackBar);
   }
 }

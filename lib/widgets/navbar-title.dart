@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class Navbartitle extends StatefulWidget implements PreferredSizeWidget {
   final String titre;
   final icon;
-  final TextEditingController? searchview;
+  final TextEditingController searchview;
 
   Navbartitle({
     this.titre = "Accueil",
@@ -104,18 +104,12 @@ class _NavbartitleState extends State<Navbartitle> {
                 click = true;
               } else {
                 click = false;
-                widget.searchview!.clear();
+                widget.searchview.clear();
               }
             });
           },
         )
       ],
-      shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              bottomRight: Radius.circular(60),
-              bottomLeft: Radius.circular(60),
-            ),
-          ),
     );
   }
 }

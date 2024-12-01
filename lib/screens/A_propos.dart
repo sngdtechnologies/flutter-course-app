@@ -53,8 +53,8 @@ class AproposScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 16.0),
                 child: CardHorizontal(
                     cta: "1View article",
-                    title: homeCards["Ice Cream"]!['title'] as String,
-                    chemin: homeCards["Ice Cream"]!['image'] as String,
+                    title: homeCards["Ice Cream"]['title'],
+                    chemin: homeCards["Ice Cream"]['image'],
                     tap: () {
                       // Navigator.pushNamed(context, '/pro');
                     }),
@@ -64,8 +64,8 @@ class AproposScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 16.0),
                 child: CardHorizontal(
                     cta: "1View article",
-                    title: homeCards["Ice Cream"]!['title'] as String,
-                    chemin: homeCards["Ice Cream"]!['image'] as String,
+                    title: homeCards["Ice Cream"]['title'],
+                    chemin: homeCards["Ice Cream"]['image'],
                     tap: () {
                       // Navigator.pushNamed(context, '/pro');
                     }),

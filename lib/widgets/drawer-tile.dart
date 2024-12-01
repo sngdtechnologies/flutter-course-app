@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 class DrawerTile extends StatelessWidget {
   final String title;
   final IconData icon;
-  final Function()? onTap;
+  final Function onTap;
   final bool isSelected;
   final Color iconColor;
 
   DrawerTile(
-      {required this.title,
-      required this.icon,
-      required this.onTap,
+      {this.title,
+      this.icon,
+      this.onTap,
       this.isSelected = false,
       this.iconColor = ArgonColors.text});
 
