@@ -4,14 +4,13 @@ import 'package:premiere/screens/A_propos.dart';
 import 'package:premiere/screens/Help.dart';
 import 'package:premiere/screens/Profil/Profil.dart';
 import 'package:premiere/screens/Serie.dart';
-import 'package:premiere/screens/Chat/HomePage.dart';
 
 import 'package:premiere/widgets/drawer-tile.dart';
 
 class ArgonDrawer extends StatelessWidget {
   final String currentPage;
 
-  ArgonDrawer({required this.currentPage});
+  ArgonDrawer({this.currentPage});
 
   @override
   Widget build(BuildContext context) {
@@ -121,32 +120,6 @@ class ArgonDrawer extends StatelessWidget {
                   iconColor: Colors.brown,
                   title: "A propos de nous",
                   isSelected: currentPage == "Apropos" ? true : false),
-              DrawerTile(
-                  icon: Icons.person,
-                  onTap: () {
-                    if (currentPage != "Chat") {
-                      Navigator.pop(context);
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (BuildContext context) {
-                        return HomePage();
-                      }));
-                      // return PageRouteBuilder(
-                      //   pageBuilder: (context, animation, secondaryAnimation) =>
-                      //       HomePage(),
-                      //   transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      //     animation = CurvedAnimation(curve: Curves.ease, parent: animation);
-                      //     return FadeTransition(
-                      //       opacity: animation,
-                      //       child: child,
-                      //     );
-                      //   }
-                      // );
-                      // Navigator.pushNamed(context, '/chat');
-                    }
-                  },
-                  iconColor: Colors.deepPurple,
-                  title: "Chat",
-                  isSelected: currentPage == "Chat" ? true : false),
             ],
           ),
         ),

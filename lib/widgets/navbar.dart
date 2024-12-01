@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -34,48 +32,38 @@ class Navbar extends StatefulWidget implements PreferredSizeWidget {
 class _NavbarState extends State<Navbar> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        AppBar(
-          backgroundColor: widget.theme,
-          leading: IconButton(
-              icon: Icon(widget.icon, color: ArgonColors.white, size: 24.0),
-              onPressed: () => (widget.icon == Icons.menu)
-                  ? Scaffold.of(context).openDrawer()
-                  : Navigator.pop(context)),
-          title: Text(widget.titre),
-          actions: <Widget>[
-            PopupMenuButton(
-              icon: Icon(Icons.more_vert_outlined),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 1,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacementNamed(context, '/a_propos');
-                    },
-                    child: Text('A propos de nous'),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 2,
-                  child: GestureDetector(
-                    onTap: () {
-                      showDeconnexion(context);
-                    },
-                    child: Text('Déconnexion'),
-                  ),
-                ),
-              ],
-            )
-          ],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              bottomRight: Radius.circular(50),
-              bottomLeft: Radius.circular(50),
+    return AppBar(
+      backgroundColor: widget.theme,
+      leading: IconButton(
+          icon: Icon(widget.icon, color: ArgonColors.white, size: 24.0),
+          onPressed: () => (widget.icon == Icons.menu)
+              ? Scaffold.of(context).openDrawer()
+              : Navigator.pop(context)),
+      title: Text(widget.titre),
+      actions: <Widget>[
+        PopupMenuButton(
+          icon: Icon(Icons.more_vert_outlined),
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 1,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacementNamed(context, '/a_propos');
+                },
+                child: Text('A propos de nous'),
+              ),
             ),
-          ),
-        ),
+            PopupMenuItem(
+              value: 2,
+              child: GestureDetector(
+                onTap: () {
+                  showDeconnexion(context);
+                },
+                child: Text('Déconnexion'),
+              ),
+            ),
+          ],
+        )
       ],
     );
   }
@@ -133,7 +121,7 @@ class _NavbarState extends State<Navbar> {
                               await InternetAddress.lookup('google.com');
                           if (result.isNotEmpty &&
                               result[0].rawAddress.isNotEmpty) {
-                            final User? user = _auth.currentUser;
+                            final User user = _auth.currentUser;
                             if (user == null) {
                               Scaffold.of(context).showSnackBar(const SnackBar(
                                 content: Text('Aucun compte créer.'),

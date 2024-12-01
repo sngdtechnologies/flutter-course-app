@@ -1,28 +1,27 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:premiere/screens/Compte/Welcome.dart';
 
 class ContratCondition extends StatefulWidget {
-  ContratCondition({Key? key}) : super(key: key);
+  ContratCondition({Key key}) : super(key: key);
 
   @override
   _ContratConditionState createState() => _ContratConditionState();
 }
 
 class _ContratConditionState extends State<ContratCondition> {
-  ScrollController? _scrollController;
+  ScrollController _scrollController;
   bool _termsReaded = false;
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
     _scrollController = ScrollController();
 
-    _scrollController!.addListener(() {
-      if (_scrollController!.offset >=
-              _scrollController!.position.maxScrollExtent &&
-          !_scrollController!.position.outOfRange) {
+    _scrollController.addListener(() {
+      if (_scrollController.offset >=
+              _scrollController.position.maxScrollExtent &&
+          !_scrollController.position.outOfRange) {
         setState(() => _termsReaded = true);
       }
     });

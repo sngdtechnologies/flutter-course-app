@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use, invalid_return_type_for_catch_error, unused_local_variable
-
 import 'dart:async';
 import 'dart:io';
 import 'package:country_picker/country_picker.dart';
@@ -16,7 +14,7 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 class SignIn extends StatefulWidget {
   SignIn({
-    Key? key,
+    Key key,
   }) : super(key: key);
 
   @override
@@ -25,7 +23,7 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  User? user;
+  User user;
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   final RegExp phoneRegex = RegExp(r"^[0-9]+$");
   final RegExp codeRegex = RegExp(r"[0-9]{6}");
@@ -33,7 +31,7 @@ class _SignInState extends State<SignIn> {
 
   final TextEditingController otpController = new TextEditingController();
   final TextEditingController phoneController = new TextEditingController();
-  UserCredential? userCredential;
+  UserCredential userCredential;
 
   var action = false;
   var form = false;
@@ -277,8 +275,8 @@ class _SignInState extends State<SignIn> {
                                 setState(() {
                                   color = Colors.grey;
                                   form = true;
-                                  action = true;
-                                  signUp();
+                                  // action = true;
+                                  // signUp();
                                 }),
                               }
                             else
@@ -699,7 +697,7 @@ class _SignInState extends State<SignIn> {
                     .then((user) async => {});
               },
               verificationFailed: (FirebaseAuthException error) {
-                debugPrint('Erreur de chargement: ' + error.message!);
+                debugPrint('Erreur de chargement: ' + error.message);
                 // setState(() {
                 //   isLoading = false;
                 // });
@@ -733,7 +731,7 @@ class _SignInState extends State<SignIn> {
       content: Text(text),
       backgroundColor: Colors.blue,
     );
-    _scaffoldKey.currentState!.showSnackBar(snackBar);
+    _scaffoldKey.currentState.showSnackBar(snackBar);
   }
 
   afficheInfo(text) {
@@ -747,6 +745,6 @@ class _SignInState extends State<SignIn> {
       ),
       backgroundColor: Colors.blue,
     );
-    _scaffoldKey.currentState!.showSnackBar(snackBar);
+    _scaffoldKey.currentState.showSnackBar(snackBar);
   }
 }

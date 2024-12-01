@@ -1,22 +1,17 @@
-// ignore_for_file: unnecessary_question_mark, unused_field, deprecated_member_use, unnecessary_null_comparison
-
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:premiere/screens/Serie.dart';
+import 'package:premiere/screens/Compte/Felicitation_Sign.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class InfoCompte extends StatefulWidget {
   final password;
-  InfoCompte({Key? key, this.password = ''}) : super(key: key);
+  InfoCompte({Key key, this.password = ''}) : super(key: key);
 
   @override
   _InfoCompteState createState() => _InfoCompteState();
@@ -30,18 +25,18 @@ class _InfoCompteState extends State<InfoCompte> {
   //picture: https://lh3.googleusercontent.com/a/AATXAJyyQijYVdHXSeHK_ufRXE2_xxSuNGUiJZ7zoSJs=s96-c,
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
-  PickedFile? _imageFile;
-  dynamic? _pickImageError;
-  String? _retrieveDataError;
+  PickedFile _imageFile;
+  dynamic _pickImageError;
+  String _retrieveDataError;
 
   final ImagePicker _picker = ImagePicker();
   final TextEditingController maxWidthController = TextEditingController();
   final TextEditingController maxHeightController = TextEditingController();
   final TextEditingController qualityController = TextEditingController();
-  TextEditingController? nameController;
-  TextEditingController? passwordController;
-  TextEditingController? urlController;
-  TextEditingController? telControlleur;
+  TextEditingController nameController;
+  TextEditingController passwordController;
+  TextEditingController urlController;
+  TextEditingController telControlleur;
 
   Color theme = Colors.blue;
   Color color = Colors.grey;
@@ -55,22 +50,21 @@ class _InfoCompteState extends State<InfoCompte> {
   bool _isSecret = true;
   bool erreurMdp = false;
   String modif = '';
-  bool isLoading = false;
 
-  User? user;
+  User user;
 
   @override
   void initState() {
     _auth.userChanges().listen((event) => setState(() => {
           user = event,
-          nomPrenom = ((user!.displayName != null) ? user!.displayName : '')!,
+          nomPrenom = (user.displayName != null) ? user.displayName : '',
           _password = (widget.password != '') ? widget.password : '',
         }));
 
     super.initState();
   }
 
-  void _onImageButtonPressed(ImageSource source, {BuildContext? context}) async {
+  void _onImageButtonPressed(ImageSource source, {BuildContext context}) async {
     affiche('Veuillez patienter . . .', Icons.refresh);
     try {
       final result = await InternetAddress.lookup('google.com');
@@ -79,10 +73,12 @@ class _InfoCompteState extends State<InfoCompte> {
           final pickedFile = await _picker.getImage(
             source: source,
           );
-          print(pickedFile!.path);
+          print(pickedFile.path);
           setState(() {
             _imageFile = pickedFile;
           });
+
+          updatePhoto();
         } catch (e) {
           setState(() {
             _pickImageError = e;
@@ -94,49 +90,44 @@ class _InfoCompteState extends State<InfoCompte> {
     }
   }
 
-  Widget? _previewImage() {
+  Widget _previewImage() {
     try {
-      final Text? retrieveError = _getRetrieveErrorWidget();
+      final Text retrieveError = _getRetrieveErrorWidget();
       if (retrieveError != null) {
         return retrieveError;
       }
       if (_imageFile != null) {
-        print('non');
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(80.0),
-          child: Image.file(File(_imageFile!.path),
-              height: 170.0,
-              width: 160.0,
-              scale: 3.0,),
+        print(_imageFile.path);
+        if (kIsWeb) {
+          // Why network?
+          // See https://pub.dev/packages/image_picker#getting-ready-for-the-web-platform
+          print('oui');
+          return Image.network(_imageFile.path);
+        } else {
+          print('non');
+          return Semantics(
+              child: Image.file(
+                File(user.photoURL),
+                height: 170.0,
+                width: 160.0,
+                scale: 3.0,
+              ),
+              label: 'Selection d\'une image dans la gallery');
+        }
+      } else if (_pickImageError != null) {
+        return Text(
+          'Erreur de selection de l\'image: $_pickImageError',
+          textAlign: TextAlign.center,
         );
       } else {
-        print(user!.photoURL);
-        return Container(
-          child: ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(55)),
-            child: CachedNetworkImage(
-              width: MediaQuery.of(context).size.width * 0.35,
-              height: MediaQuery.of(context).size.height * 0.25,
-              fit: BoxFit.cover,
-              imageUrl: user!.photoURL!,
-              progressIndicatorBuilder: (context, url, downloadProgress) => 
-                SpinKitWave(
-                  color: Colors.white,
-                  size: 15,
-                ),
-              errorWidget: (context, url, error) => Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: AssetImage('assets/img/img_not_available.jpeg'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                clipBehavior: Clip.hardEdge,
-              ),
+        return Semantics(
+            child: Image.file(
+              File(user.photoURL),
+              height: 170.0,
+              width: 160.0,
+              scale: 3.0,
             ),
-          ),
-        );
+            label: 'Selection d\'une image dans la gallery');
       }
     } catch (e) {
       affiche('Une erreur c\'est produite veuillez réesseller ultérieurement ',
@@ -154,14 +145,14 @@ class _InfoCompteState extends State<InfoCompte> {
         _imageFile = response.file;
       });
     } else {
-      _retrieveDataError = response.exception!.code;
+      _retrieveDataError = response.exception.code;
     }
   }
 
-  Text? _getRetrieveErrorWidget() {
+  Text _getRetrieveErrorWidget() {
     try {
       if (_retrieveDataError != null) {
-        final Text result = Text(_retrieveDataError!);
+        final Text result = Text(_retrieveDataError);
         _retrieveDataError = null;
         return result;
       }
@@ -176,7 +167,7 @@ class _InfoCompteState extends State<InfoCompte> {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        user!.updateProfile(photoURL: _imageFile!.path);
+        user.updateProfile(photoURL: _imageFile.path);
       }
     } on SocketException catch (_) {
       affiche('Veuillez-vous connecter . . .', Icons.signal_wifi_off_rounded);
@@ -214,65 +205,23 @@ class _InfoCompteState extends State<InfoCompte> {
               children: [
                 Stack(
                   children: [
-                    if (user!.photoURL != ' ' &&
-                        user!.photoURL != null &&
+                    if (user.photoURL != ' ' &&
+                        user.photoURL != null &&
                         user != null)
                       Positioned(
                           child: GestureDetector(
                         onTap: () => showDialog(
                           context: context,
-                          builder: (context) => Container(
-                            alignment: Alignment.center,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: CachedNetworkImage(
-                                width: MediaQuery.of(context).size.width * 0.8,
-                                height: MediaQuery.of(context).size.height * 0.75,
-                                fit: BoxFit.cover,
-                                imageUrl: user!.photoURL!,
-                                progressIndicatorBuilder: (context, url, downloadProgress) => 
-                                        SpinKitWave(
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                errorWidget: (context, url, error) => Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                      image: AssetImage('assets/img/img_not_available.jpeg'),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  clipBehavior: Clip.hardEdge,
-                                ),
+                          builder: (context) => Semantics(
+                              child: Image.file(
+                                File(user.photoURL),
                               ),
-                            ),
-                          ),
-                          // builder: (context) => Container(
-                          //   decoration: BoxDecoration(
-                          //     shape: BoxShape.circle,
-                          //     image: DecorationImage(
-                          //       image: NetworkImage(
-                          //         user.photoURL
-                          //       ),
-                          //       fit: BoxFit.cover,
-                          //       onError: (dynamic, stackTrace) {
-                          //         return Container(
-                          //           decoration: BoxDecoration(
-                          //             shape: BoxShape.circle,
-                          //             image: DecorationImage(
-                          //               image: AssetImage('assets/img/img_not_available.jpeg'),
-                          //               fit: BoxFit.cover,
-                          //             ),
-                          //           ),
-                          //           clipBehavior: Clip.hardEdge,
-                          //         );
-                          //       },
-                          //     ),
-                          //   ),
-                          // ),
+                              label: 'Selection d\'une image dans la gallery'),
                         ),
-                        child: _previewImage(),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(80.0),
+                          child: _previewImage(),
+                        ),
                       ))
                     else
                       Positioned(
@@ -375,8 +324,8 @@ class _InfoCompteState extends State<InfoCompte> {
                                       child: TextFormField(
                                         controller: nameController,
                                         autocorrect: false,
-                                        initialValue: (user!.displayName != null)
-                                            ? user!.displayName
+                                        initialValue: (user.displayName != null)
+                                            ? user.displayName
                                             : 'Votre nom et prénom',
                                         autofocus: modifier,
                                         style: TextStyle(
@@ -558,15 +507,54 @@ class _InfoCompteState extends State<InfoCompte> {
                                 try {
                                   final result = await InternetAddress.lookup(
                                       'google.com');
-                                  if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-                                    var firebaseUser =  FirebaseAuth.instance.currentUser;
-                                    var result = await _firebaseFirestore.collection("utilisateurs").doc(firebaseUser!.uid).get();
-                                        
-                                    if (!result.exists) {
-                                      uploadFile(_imageFile!);
+                                  if (result.isNotEmpty &&
+                                      result[0].rawAddress.isNotEmpty) {
+                                    if (user.displayName == null) {
+                                      user.updateProfile(
+                                          displayName: nomPrenom, photoURL: '');
+                                      await _firebaseFirestore
+                                          .collection('utilisateurs')
+                                          .doc(_auth.currentUser.uid)
+                                          .set({
+                                        'nom': nomPrenom,
+                                        'telephone': user.phoneNumber,
+                                        'password': _password,
+                                        'dateCreate': DateTime.now(),
+                                        'dateUpdate': DateTime.now(),
+                                      }, SetOptions(merge: true)).then(
+                                              (value) => {
+                                                    Navigator.push(context,
+                                                        MaterialPageRoute(
+                                                            builder:
+                                                                (BuildContext
+                                                                    context) {
+                                                      return FelicitationSign();
+                                                    }))
+                                                  });
                                     } else {
-                                      updateFile(_imageFile!);
+                                      var doc;
+                                      doc = user.uid;
+
+                                      //Modification du document
+                                      _firebaseFirestore
+                                          .collection("utilisateurs")
+                                          .doc(doc)
+                                          .update({
+                                        "nom": nomPrenom,
+                                        "password": _password,
+                                        "dateUpdate": DateTime.now(),
+                                      }).then((value) {
+                                        user.reload();
+                                      });
+
+                                      // print(nomPrenom)
                                     }
+                                    Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                FelicitationSign()),
+                                        ModalRoute.withName('/infoCompte'));
                                   }
                                 } on SocketException catch (_) {
                                   affiche('Veuillez-vous connecter . . .',
@@ -596,178 +584,11 @@ class _InfoCompteState extends State<InfoCompte> {
     );
   }
 
-  Future getImage() async {
-    ImagePicker imagePicker = ImagePicker();
-    PickedFile? pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        isLoading = true;
-      });
-      uploadFile(pickedFile);
-    }
-  }
-
-  Future uploadFile(PickedFile file) async {
-    try {
-      if(file == null) {
-        user!.updateProfile(
-            displayName: nomPrenom, photoURL: ' ');
-        await _firebaseFirestore
-            .collection('utilisateurs')
-            .doc(_auth.currentUser!.uid)
-            .set({
-          'nom': nomPrenom,
-          'telephone': user!.phoneNumber,
-          'password': _password,
-          'profil': ' ',
-          'dateCreate': DateTime.now(),
-          'dateUpdate': DateTime.now(),
-        }, SetOptions(merge: true)).then(
-                (value) => {
-                      Navigator.push(context,
-                          MaterialPageRoute(
-                              builder:
-                                  (BuildContext
-                                      context) {
-                        return Serie();
-                      }))
-                    });
-      } else {
-        String fileName = DateTime.now().millisecondsSinceEpoch.toString() + ".jpeg";
-        Reference reference = FirebaseStorage.instance.ref('users').child(user!.uid).child('profil').child(fileName);
-        final metadata = SettableMetadata(
-            contentType: 'image/jpeg', customMetadata: {'picked-file-path': file.path});
-        TaskSnapshot snapshot;
-        if (kIsWeb) {
-          snapshot = await reference.putData(await file.readAsBytes(), metadata);
-        } else {
-          snapshot = await reference.putFile(File(file.path), metadata);
-        }
-
-        String imageUrl = await snapshot.ref.getDownloadURL();
-        print(imageUrl);
-        user!.updateProfile(
-            displayName: nomPrenom, photoURL: imageUrl);
-        await _firebaseFirestore
-            .collection('utilisateurs')
-            .doc(_auth.currentUser!.uid)
-            .set({
-          'nom': nomPrenom,
-          'telephone': user!.phoneNumber,
-          'password': _password,
-          'profil': imageUrl,
-          'dateCreate': DateTime.now(),
-          'dateUpdate': DateTime.now(),
-        }, SetOptions(merge: true)).then(
-                (value) => {
-                      Navigator.push(context,
-                          MaterialPageRoute(
-                              builder:
-                                  (BuildContext
-                                      context) {
-                        return Serie();
-                      }))
-                    });
-      }
-      
-      setState(() {
-        isLoading = false;
-        // onSendMessage(imageUrl, 1);
-      });
-    } on Exception {
-      setState(() {
-        isLoading = false;
-      });
-      // Fluttertoast.showToast(msg: "Error! Try again!");
-      affiche('Veuillez recommencer', Icons.error);
-    }
-  }
-
-  Future updateFile(PickedFile file) async {
-    print('oui');
-    try{
-      if(file == null) {
-        user!.updateProfile(
-            displayName: nomPrenom, photoURL: user!.photoURL);
-        var doc;
-        doc = user!.uid;
-
-        //Modification du document
-        await _firebaseFirestore
-            .collection("utilisateurs")
-            .doc(doc)
-            .update({
-          "nom": nomPrenom,
-          "password": _password,
-          "profil": user!.photoURL,
-          "dateUpdate": DateTime.now(),
-        }).then((value) {
-          user!.reload();
-          Navigator.push(context,
-              MaterialPageRoute(
-                  builder:
-                      (BuildContext
-                          context) {
-            return Serie();
-          }));
-        }, onError: affiche('Veuillezz recommencer', Icons.error));
-      } else {
-        String fileName = DateTime.now().millisecondsSinceEpoch.toString() + ".jpeg";
-        Reference reference = FirebaseStorage.instance.ref('users').child(user!.uid).child('profil').child(fileName);
-        final metadata = SettableMetadata(
-            contentType: 'image/jpeg', customMetadata: {'picked-file-path': file.path});
-        TaskSnapshot snapshot;
-        if (kIsWeb) {
-          snapshot = await reference.putData(await file.readAsBytes(), metadata);
-        } else {
-          snapshot = await reference.putFile(File(file.path), metadata);
-        }
-
-        String imageUrl = await snapshot.ref.getDownloadURL();
-        user!.updateProfile(
-            displayName: nomPrenom, photoURL: imageUrl);
-        var doc;
-        doc = user!.uid;
-
-        //Modification du document
-        await _firebaseFirestore
-            .collection("utilisateurs")
-            .doc(doc)
-            .update({
-          "nom": nomPrenom,
-          "password": _password,
-          "profil": imageUrl,
-          "dateUpdate": DateTime.now(),
-        }).then((value) {
-          user!.reload();
-          Navigator.push(context,
-              MaterialPageRoute(
-                  builder:
-                      (BuildContext
-                          context) {
-            return Serie();
-          }));
-        }, onError: affiche('Veuillez recommencer', Icons.error));
-      }
-    
-      setState(() {
-        isLoading = false;
-        // onSendMessage(imageUrl, 1);
-      });
-    } on Exception {
-      setState(() {
-        isLoading = false;
-      });
-      // Fluttertoast.showToast(msg: "Error! Try again!");
-      affiche('Veuillez recommencer', Icons.error);
-    }
-  }
-
   @override
   void dispose() {
-    nameController!.dispose();
-    urlController!.dispose();
-    telControlleur!.dispose();
+    nameController.dispose();
+    urlController.dispose();
+    telControlleur.dispose();
     super.dispose();
   }
 
@@ -824,6 +645,6 @@ class _InfoCompteState extends State<InfoCompte> {
       ),
       backgroundColor: theme,
     );
-    scaffoldKey.currentState!.showSnackBar(snackBar);
+    scaffoldKey.currentState.showSnackBar(snackBar);
   }
 }

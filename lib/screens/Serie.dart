@@ -1,19 +1,18 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:premiere/constants/ArgonColors.dart';
 import 'package:flutter/material.dart';
-// import 'package:premiere/screens/SerieA.dart/SerieA.dart';
-// import 'package:premiere/screens/SerieC.dart/SerieC.dart';
-// import 'package:premiere/screens/SerieD.dart/SerieD.dart';
-// import 'package:premiere/screens/SerieE.dart/SerieE.dart';
-// import 'package:premiere/screens/SerieTI.dart/SerieTI.dart';
+import 'package:premiere/screens/BlinkingToast.dart';
+import 'package:premiere/screens/SerieA.dart/SerieA.dart';
+import 'package:premiere/screens/SerieC.dart/SerieC.dart';
+import 'package:premiere/screens/SerieD.dart/SerieD.dart';
+import 'package:premiere/screens/SerieE.dart/SerieE.dart';
+import 'package:premiere/screens/SerieTI.dart/SerieTI.dart';
 import 'package:premiere/widgets/drawer.dart';
 import 'package:premiere/widgets/navbar.dart';
 
 class Serie extends StatefulWidget {
   final String tel;
 
-  Serie({Key? key, this.tel = ''}) : super(key: key);
+  Serie({Key key, this.tel = ''}) : super(key: key);
 
   @override
   _SerieState createState() => _SerieState();
@@ -21,7 +20,7 @@ class Serie extends StatefulWidget {
 
 class _SerieState extends State<Serie> {
   final GlobalKey scaffoldKey = new GlobalKey();
-  // BlinkingToast toast = new BlinkingToast();
+  BlinkingToast toast = new BlinkingToast();
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +58,10 @@ class _SerieState extends State<Serie> {
                         //   duration: new Duration(seconds: 10),
                         //   position: new Offset(100.0, 100.0),
                         // );
-                        // Navigator.push(context,
-                        //     MaterialPageRoute(builder: (BuildContext context) {
-                        //   return SerieA();
-                        // }));
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (BuildContext context) {
+                          return SerieA();
+                        }));
                       },
                       child: Text(
                         'Serie A',
@@ -81,10 +80,10 @@ class _SerieState extends State<Serie> {
                       padding: EdgeInsets.symmetric(
                           horizontal: 20.0, vertical: 15.0),
                       onPressed: () {
-                        // Navigator.push(context,
-                        //     MaterialPageRoute(builder: (BuildContext context) {
-                        //   return SerieD();
-                        // }));
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (BuildContext context) {
+                          return SerieD();
+                        }));
                       },
                       child: Text(
                         'Serie D',
@@ -108,10 +107,10 @@ class _SerieState extends State<Serie> {
                       padding: EdgeInsets.symmetric(
                           horizontal: 20.0, vertical: 15.0),
                       onPressed: () {
-                        // Navigator.push(context,
-                        //     MaterialPageRoute(builder: (BuildContext context) {
-                        //   return SerieC();
-                        // }));
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (BuildContext context) {
+                          return SerieC();
+                        }));
                       },
                       child: Text(
                         'Serie C',
@@ -130,10 +129,10 @@ class _SerieState extends State<Serie> {
                       padding: EdgeInsets.symmetric(
                           horizontal: 20.0, vertical: 15.0),
                       onPressed: () {
-                        // Navigator.push(context,
-                        //     MaterialPageRoute(builder: (BuildContext context) {
-                        //   return SerieE();
-                        // }));
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (BuildContext context) {
+                          return SerieE();
+                        }));
                       },
                       child: Text(
                         'Serie E',
@@ -157,10 +156,10 @@ class _SerieState extends State<Serie> {
                       padding: EdgeInsets.symmetric(
                           horizontal: 20.0, vertical: 15.0),
                       onPressed: () {
-                        // Navigator.push(context,
-                        //     MaterialPageRoute(builder: (BuildContext context) {
-                        //   return SerieTI();
-                        // }));
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (BuildContext context) {
+                          return SerieTI();
+                        }));
                       },
                       child: Text(
                         'Serie TI',

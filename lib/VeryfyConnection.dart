@@ -1,11 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:premiere/screens/Accueil.dart';
-import 'package:premiere/screens/Compte/InfoCompte.dart';
 import 'package:premiere/screens/Serie.dart';
-
-final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 class VeryfyConnection extends StatefulWidget {
   @override
@@ -13,32 +9,55 @@ class VeryfyConnection extends StatefulWidget {
 }
 
 class _VeryfyConnectionState extends State<VeryfyConnection> {
-  var doc = true;
+  bool _isVisible = false;
 
-  _onDocumentExists() async{
-    var firebaseUser =  FirebaseAuth.instance.currentUser;
-    var result = await _firestore.collection("utilisateurs").doc(firebaseUser!.uid).get();
-    setState(() {
-      doc = result.exists;
-    });
-    // return doc ? Serie() : InfoCompte();
+  Widget veryfyConnection() {
+    return StreamBuilder<User>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (BuildContext context, snapshot) {
+        if (!snapshot.hasData) {
+          return Stack(
+            children: [
+              Positioned(
+                  top: 100,
+                  left: 100,
+                  child: new IgnorePointer(
+                    child: new Material(
+                      color: Colors.transparent,
+                      child: new Opacity(
+                        opacity: 1.0,
+                        child: Icon(Icons.warning, color: Colors.purple),
+                      ),
+                    ),
+                  )),
+              Positioned(child: AccueilScreen()),
+            ],
+          );
+        } else {
+          return Stack(
+            children: [
+              Positioned(child: Serie()),
+              Positioned(
+                  top: 50,
+                  left: 150,
+                  child: new IgnorePointer(
+                    child: new Material(
+                      color: Colors.transparent,
+                      child: new Opacity(
+                        opacity: 1.0,
+                        child: Icon(Icons.warning, color: Colors.purple),
+                      ),
+                    ),
+                  )),
+            ],
+          );
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (BuildContext context, snapshot) {
-        if (!snapshot.hasData) {
-          return AccueilScreen();
-        } else {
-          _onDocumentExists();
-          
-          // print(doc);
-          // return Container();
-          return doc ? Serie() : InfoCompte();
-        }
-      },
-    );
+    return veryfyConnection();
   }
 }

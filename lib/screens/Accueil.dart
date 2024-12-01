@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:premiere/screens/Compte/Welcome.dart';
 
 class AccueilScreen extends StatelessWidget {
@@ -35,6 +36,21 @@ class AccueilScreen extends StatelessWidget {
                             color: Colors.white,
                           ),
                           textAlign: TextAlign.justify,
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Container(
+                          height: 100.0,
+                          width: 100,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              scale: 0.3,
+                              image: AssetImage(
+                                  'android/app/src/main/res/mipmap-mdpi/ic_launcher.png'),
+                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
                         ),
                         SizedBox(
                           height: 20.0,
